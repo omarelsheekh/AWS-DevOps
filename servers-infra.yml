@@ -48,3 +48,42 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
+
+  WebAppLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Install docker
+          apt-get update
+          apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          add-apt-repository \
+          "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+          $(lsb_release -cs) \
+          stable"
+          apt-get update
+          apt-get install -y docker-ce
+          usermod -aG docker ubuntu
+          docker run -p 8080:8080 tomcat:8.0
+      ImageId: ami-07dd19a7900a1f049
+      KeyName: udacity-project-key
+      SecurityGroups:
+      - Ref: WebServerSecGroup
+      InstanceType: t2.micro
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sdb"
+        Ebs:
+          VolumeSize: '8'
+ 
+  WebAppGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+      - Fn::ImportValue: 
+          !Sub "${EnvironmentName}-PRIV-NETS"
+      LaunchConfigurationName:
+        Ref: WebAppLaunchConfig
+      MinSize: '1'
+      MaxSize: '3'
