@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i ansible/inventory.txt ansible/playbook.yml
+            ansible-playbook -i ansible/inventory.txt ansible/main.yml
 
   save_output_file:
     <<: *default_docker
