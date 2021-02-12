@@ -1,5 +1,5 @@
 ---
 - name: Exercise #1
-  hosts: localhost
+  hosts: all
   roles:
    - print

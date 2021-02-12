@@ -1,0 +1,61 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+default_docker: &default_docker
+  docker:
+      - image: cimg/base:2020.01
+
+commands:
+  echo_text:
+    description: echo some text
+    parameters:
+      text:
+        type: string
+        default: some text
+    steps:
+      - run: echo << parameters.text >>
+      - run:
+          name: notify job failur
+          command: curl --data "{"error":"echo job failed"}" http://example.com/error_logs
+          when: on_fail
+
+jobs:
+
+  configure_infrastructure:
+    docker:
+      - image: ansible/ansible
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["f8:9f:df:db:12:e1:dd:87:75:95:0b:f6:96:89:e7:22"] 
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i ansible/inventory.txt ansible/playbook.yml
+
+  save_output_file:
+    <<: *default_docker
+    steps:
+      - run: echo "testing sharing files between jobs" > ~/output.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - output.txt
+
+  print_output_file:
+    <<: *default_docker
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: cat ~/output.txt
+
+workflows:
+  # Name the workflow "welcome"
+  welcome:
+    # Run the welcome/run job in its own container
+    jobs:
+      - configure_infrastructure
+      - save_output_file
+      - print_output_file:
+          requires:
+            - save_output_file
