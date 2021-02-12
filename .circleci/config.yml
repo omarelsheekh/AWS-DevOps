@@ -23,7 +23,7 @@ jobs:
 
   configure_infrastructure:
     docker:
-      - image: ansible/ansible:default
+      - image: cytopia/ansible
     steps:
       - checkout
       - add_ssh_keys:
