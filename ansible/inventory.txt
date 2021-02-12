@@ -1,2 +1,4 @@
 [all]
 ec2-34-217-70-104.us-west-2.compute.amazonaws.com
+[all:vars]
+ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
