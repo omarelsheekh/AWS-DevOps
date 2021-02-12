@@ -23,7 +23,7 @@ jobs:
 
   configure_infrastructure:
     docker:
-      - image: ansible/ansible
+      - image: ansible/ansible:default
     steps:
       - checkout
       - add_ssh_keys:
