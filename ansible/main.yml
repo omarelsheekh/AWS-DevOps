@@ -1,5 +1,6 @@
 ---
 - name: Exercise #1
+  user: ubuntu
   hosts: all
   roles:
    - print
