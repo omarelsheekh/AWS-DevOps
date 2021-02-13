@@ -24,12 +24,14 @@ jobs:
   configure_infrastructure:
     docker:
       - image: cytopia/ansible
+    environment:
+      ANSIBLE_HOST_KEY_CHECKING: False
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: 
             - "f8:9f:df:db:12:e1:dd:87:75:95:0b:f6:96:89:e7:22"
-      - run: export ANSIBLE_HOST_KEY_CHECKING=False
+      # - run: export ANSIBLE_HOST_KEY_CHECKING=False
       - run:
           name: Configure server
           command: |
