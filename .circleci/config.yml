@@ -23,15 +23,13 @@ jobs:
 
   configure_infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cytopia/ansible
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: 
             - "f8:9f:df:db:12:e1:dd:87:75:95:0b:f6:96:89:e7:22"
-      - run:
-          name: Install dependencies
-          command: apk add --update ansible
+      - run: export ANSIBLE_HOST_KEY_CHECKING=False
       - run:
           name: Configure server
           command: |
