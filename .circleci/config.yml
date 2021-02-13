@@ -31,27 +31,25 @@ jobs:
       - add_ssh_keys:
           fingerprints: 
             - "f8:9f:df:db:12:e1:dd:87:75:95:0b:f6:96:89:e7:22"
-      # - run: export ANSIBLE_HOST_KEY_CHECKING=False
       - run:
           name: Configure server
           command: |
             ansible-playbook -i ansible/inventory.txt ansible/main.yml
 
-  save_output_file:
-    <<: *default_docker
-    steps:
-      - run: echo "testing sharing files between jobs" > ~/output.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - output.txt
-
-  print_output_file:
-    <<: *default_docker
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: cat ~/output.txt
+  smoke_test:
+      <<: *default_docker
+      environment:
+        URL: https://google.com/
+      steps:
+        - run:
+            name: smoke test.
+            command: |
+              if curl -s --head $URL
+              then
+               return 0
+              else
+               return 1
+              fi
 
 workflows:
   # Name the workflow "welcome"
@@ -59,7 +57,6 @@ workflows:
     # Run the welcome/run job in its own container
     jobs:
       - configure_infrastructure
-      - save_output_file
-      - print_output_file:
+      - smoke_test:
           requires:
-            - save_output_file
+            - configure_infrastructure
